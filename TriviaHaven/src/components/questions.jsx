@@ -1,3 +1,5 @@
+// src/components/QuestionsList.jsx
+
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
@@ -7,9 +9,10 @@ const QuestionsList = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    // Replace with your actual API endpoint
     axios.get('https://opentdb.com/api.php?amount=5&difficulty=medium&type=multiple')
       .then(response => {
-        setQuestions(response.data);
+        setQuestions(response.data.results); // Adjust according to your API response structure
         setLoading(false);
       })
       .catch(err => {
@@ -23,15 +26,30 @@ const QuestionsList = () => {
 
   return (
     <div>
-      <h1>Questions and Answers</h1>
-      <ul>
-        {questions.map((item) => (
-          <li key={item.id}>
-            <h2>{item.question}</h2>
-            <p>{item.answer}</p>
-          </li>
-        ))}
-      </ul>
+      <h1>Quiz Questions</h1>
+      {questions.map((questionItem, index) => {
+        // Combine correct answer with incorrect answers and shuffle them
+        const allAnswers = [
+          questionItem.correct_answer,
+          ...questionItem.incorrect_answers
+        ].sort(() => Math.random() - 0.5);
+
+        return (
+          <div key={index} className="question-item">
+            <h2>{questionItem.question}</h2>
+            <ul>
+              {allAnswers.map((answer, idx) => (
+                <li key={idx}>
+                  <label>
+                    <input type="radio" name={`question-${index}`} value={answer} />
+                    {answer}
+                  </label>
+                </li>
+              ))}
+            </ul>
+          </div>
+        );
+      })}
     </div>
   );
 };
